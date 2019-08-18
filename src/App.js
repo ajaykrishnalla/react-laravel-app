@@ -1,26 +1,43 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { useEffect } from "react";
+import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
+import "./App.css";
+import "bootstrap/dist/css/bootstrap.min.css";
+import Navbar from "./components/layouts/Navbar";
+import Login from "./components/auth/Login";
+import Register from "./components/auth/Register";
+import Dashboard from "./components/Dashboard";
+import { Provider } from "react-redux";
+import store from "./store";
+import PrivateRoute from "./routing/PrivateRoute";
+import SetAuthToken from "./utils/SetAuthToken";
+import { loadUser } from "./actions/authActions";
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+if (localStorage.token) {
+  SetAuthToken(localStorage.token);
 }
+
+const App = () => {
+  useEffect(() => {
+    store.dispatch(loadUser());
+  }, []);
+  return (
+    <Provider store={store}>
+      <Router>
+        <React.Fragment>
+          <Navbar />
+          <div className="container ">
+            <div className="mx-auto">
+              <Switch>
+                <PrivateRoute exact path="/dashboard" component={Dashboard} />
+                <Route exact path="/register" component={Register} />
+                <Route exact path="/login" component={Login} />
+              </Switch>
+            </div>
+          </div>
+        </React.Fragment>
+      </Router>
+    </Provider>
+  );
+};
 
 export default App;
